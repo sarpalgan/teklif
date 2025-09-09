@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İş Yönetim Sistemi</title>
+    <title>Labomak Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -16,1372 +15,510 @@
                     colors: {
                         primary: {
                             50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
                             500: '#3b82f6',
                             600: '#2563eb',
-                            700: '#1d4ed8'
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
                         }
                     }
                 }
             }
         }
     </script>
-    <script>
-        // Dark mode initialization
-        if (localStorage.getItem('darkMode') === 'true' || (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
-    <div class="min-h-screen flex flex-col lg:flex-row">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Mobile Header -->
+    <div class="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 fixed top-0 left-0 right-0 z-50">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center space-x-3">
+                <button id="mobile-menu-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <h1 class="text-lg font-bold text-gray-800 dark:text-white">Labomak</h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="theme-toggle" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <!-- Desktop Header -->
+        <div class="hidden lg:flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-white">Labomak</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Dashboard v2.0</p>
+                </div>
+            </div>
+            <button id="theme-toggle-desktop" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block"></i>
+            </button>
+        </div>
+
         <!-- Mobile Header -->
-        <div class="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center justify-between p-4">
-                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">İş Yönetim Sistemi</h1>
-                <button id="darkModeToggle" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-moon text-gray-600 dark:text-gray-300 dark:hidden"></i>
-                    <i class="fas fa-sun text-yellow-500 hidden dark:inline"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:flex lg:flex-col">
-            <!-- Sidebar Header -->
-            <div class="hidden lg:flex items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">İş Yönetim Sistemi</h1>
-            </div>
-
-            <!-- Close button for mobile -->
-            <div class="lg:hidden flex justify-end p-4">
-                <button id="closeMobileMenu" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <i class="fas fa-times text-gray-600 dark:text-gray-300"></i>
-                </button>
-            </div>
-
-            <!-- Navigation Menu -->
-            <nav class="flex-1 px-4 py-4 space-y-2">
-                <button class="menu-item w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200 active" data-module="dashboard">
-                    <i class="fas fa-home w-5 h-5 mr-3"></i>
-                    <span>Dashboard</span>
-                </button>
-                
-                <button class="menu-item w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" data-module="teklif">
-                    <i class="fas fa-file-contract w-5 h-5 mr-3"></i>
-                    <span>Teklif İşlemleri</span>
-                </button>
-                
-                <button class="menu-item w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" data-module="urun">
-                    <i class="fas fa-box w-5 h-5 mr-3"></i>
-                    <span>Ürün İşlemleri</span>
-                </button>
-                
-                <button class="menu-item w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200" data-module="musteri">
-                    <i class="fas fa-users w-5 h-5 mr-3"></i>
-                    <span>Müşteri İşlemleri</span>
-                </button>
-            </nav>
-
-            <!-- Sidebar Footer -->
-            <div class="p-4 border-t">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-white text-sm"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">Kullanıcı</p>
-                        <p class="text-xs text-gray-500 truncate">admin@example.com</p>
-                    </div>
+        <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-sm"></i>
                 </div>
+                <h1 class="text-lg font-bold text-gray-800 dark:text-white">Labomak</h1>
             </div>
+            <button id="mobile-menu-close" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
-        <!-- Overlay for mobile -->
-        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col min-h-screen lg:min-h-0">
-            <!-- Content Header -->
-            <div class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6 py-4">
-                <div class="flex items-center justify-between">
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-2">
+            <div class="mb-6">
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Ana Modüller</p>
+                
+                <a href="#" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group" data-module="dashboard">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                        <i class="fas fa-home text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
+                    </div>
                     <div>
-                        <h2 id="contentTitle" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h2>
-                        <p id="contentSubtitle" class="text-sm text-gray-600 dark:text-gray-300 mt-1">Genel bakış ve önemli bilgiler</p>
+                        <span class="font-medium">Dashboard</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Genel Bakış</p>
                     </div>
-                    <button id="darkModeToggleDesktop" class="hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <i class="fas fa-moon text-gray-600 dark:text-gray-300 dark:hidden"></i>
-                        <i class="fas fa-sun text-yellow-500 hidden dark:inline"></i>
-                    </button>
-                </div>
+                </a>
+
+                <a href="#" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group" data-module="teklifler">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                        <i class="fas fa-file-invoice text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <span class="font-medium">Teklif İşlemleri</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Teklif Yönetimi</p>
+                    </div>
+                </a>
+
+                <a href="#" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group" data-module="urunler">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                        <i class="fas fa-box text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <span class="font-medium">Ürün İşlemleri</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Ürün Yönetimi</p>
+                    </div>
+                </a>
+
+                <a href="#" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group" data-module="musteriler">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                        <i class="fas fa-users text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
+                    </div>
+                    <div>
+                        <span class="font-medium">Müşteri İşlemleri</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Müşteri Yönetimi</p>
+                    </div>
+                </a>
             </div>
 
-            <!-- Content Area -->
-            <main class="flex-1 p-4 lg:p-6">
-                <div id="contentArea" class="h-full">
-                    <!-- Dashboard Content -->
-                    <div id="dashboard-content" class="content-module">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            <!-- Stats Cards -->
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div class="flex items-center">
-                                    <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
-                                        <i class="fas fa-file-contract text-blue-600 dark:text-blue-400"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Toplam Teklif</p>
-                                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">24</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div class="flex items-center">
-                                    <div class="p-3 rounded-full bg-green-100 dark:bg-green-900">
-                                        <i class="fas fa-box text-green-600 dark:text-green-400"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Toplam Ürün</p>
-                                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">156</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                                <div class="flex items-center">
-                                    <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900">
-                                        <i class="fas fa-users text-purple-600 dark:text-purple-400"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Toplam Müşteri</p>
-                                        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">89</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Activity -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Son Aktiviteler</h3>
-                            </div>
-                            <div class="p-6">
-                                <div class="space-y-4">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full"></div>
-                                        <div class="flex-1">
-                                            <p class="text-sm text-gray-900 dark:text-gray-100">Yeni teklif oluşturuldu</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">2 saat önce</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                        <div class="flex-1">
-                                            <p class="text-sm text-gray-900">Yeni ürün eklendi</p>
-                                            <p class="text-xs text-gray-500">4 saat önce</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                        <div class="flex-1">
-                                            <p class="text-sm text-gray-900">Yeni müşteri kaydı</p>
-                                            <p class="text-xs text-gray-500">6 saat önce</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Ayarlar</p>
+                
+                <a href="#" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+                        <i class="fas fa-cog text-gray-600 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
                     </div>
-
-                    <!-- Teklif İşlemleri Content -->
-                    <div id="teklif-content" class="content-module hidden">
-                        <!-- Teklif Navigation Tabs -->
-                        <div class="bg-white rounded-lg shadow-sm border mb-6">
-                            <div class="border-b">
-                                <nav class="flex space-x-0" aria-label="Teklif İşlemleri">
-                                    <button class="teklif-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200 active" data-tab="yeni-teklif">
-                                        <i class="fas fa-plus mr-2"></i>
-                                        Yeni Teklif Oluştur
-                                    </button>
-                                    <button class="teklif-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200" data-tab="gonderilen">
-                                        <i class="fas fa-paper-plane mr-2"></i>
-                                        Gönderilen Teklifler
-                                    </button>
-                                    <button class="teklif-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200" data-tab="taslak">
-                                        <i class="fas fa-edit mr-2"></i>
-                                        Taslak Teklifler
-                                    </button>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Yeni Teklif Oluştur Tab -->
-                        <div id="yeni-teklif-tab" class="teklif-tab-content">
-                            <div class="bg-white rounded-lg shadow-sm border p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-6">Yeni Teklif Oluştur</h3>
-                                
-                                <form id="yeni-teklif-form" class="space-y-6">
-                                    <!-- Şirket ve Müşteri Bilgileri -->
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        <!-- Şirket Adı -->
-                                        <div>
-                                            <label for="sirket-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                                Şirket Adı <span class="text-red-500">*</span>
-                                            </label>
-                                            <div class="relative">
-                                                <input
-                                                    type="text"
-                                                    id="sirket-adi"
-                                                    name="sirketAdi"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Şirket adı yazın..."
-                                                    autocomplete="off"
-                                                    required
-                                                >
-                                                <div id="sirket-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-48 overflow-y-auto">
-                                                    <!-- Dropdown items will be populated here -->
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Müşteri Adı -->
-                                        <div>
-                                            <label for="musteri-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                                Müşteri Adı <span class="text-red-500">*</span>
-                                            </label>
-                                            <div class="relative">
-                                                <input
-                                                    type="text"
-                                                    id="musteri-adi"
-                                                    name="musteriAdi"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Müşteri adı yazın..."
-                                                    autocomplete="off"
-                                                    required
-                                                >
-                                                <div id="musteri-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-48 overflow-y-auto">
-                                                    <!-- Dropdown items will be populated here -->
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Ürün Ekleme Bölümü -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Ürünler <span class="text-red-500">*</span>
-                                        </label>
-                                        
-                                        <!-- Ürün Arama -->
-                                        <div class="relative mb-4">
-                                            <input
-                                                type="text"
-                                                id="urun-arama"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                placeholder="Ürün arayın ve ekleyin..."
-                                                autocomplete="off"
-                                            >
-                                            <div id="urun-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 hidden max-h-48 overflow-y-auto">
-                                                <!-- Dropdown items will be populated here -->
-                                            </div>
-                                        </div>
-
-                                        <!-- Seçilen Ürünler Listesi -->
-                                        <div id="secilen-urunler" class="space-y-3">
-                                            <!-- Selected products will be displayed here -->
-                                        </div>
-                                    </div>
-
-                                    <!-- Toplam Tutar -->
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-lg font-medium text-gray-700">Toplam Tutar:</span>
-                                            <span id="toplam-tutar" class="text-xl font-bold text-primary-600">0.00 TL</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <div class="flex justify-end pt-4">
-                                        <button
-                                            type="submit"
-                                            id="teklif-olustur-btn"
-                                            class="px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-                                            disabled
-                                        >
-                                            <i class="fas fa-check mr-2"></i>
-                                            Teklif Oluştur
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Gönderilen Teklifler Tab -->
-                        <div id="gonderilen-tab" class="teklif-tab-content hidden">
-                            <div class="bg-white rounded-lg shadow-sm border">
-                                <!-- Filter Section -->
-                                <div class="p-6 border-b">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Gönderilen Teklifler</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                        <input
-                                            type="text"
-                                            id="filter-gonderilen"
-                                            placeholder="Teklif ara..."
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <select id="sirket-filter-gonderilen" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                            <option value="">Tüm Şirketler</option>
-                                        </select>
-                                        <input
-                                            type="date"
-                                            id="tarih-filter-gonderilen"
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <button id="export-gonderilen" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                                            <i class="fas fa-download mr-2"></i>
-                                            Dışa Aktar
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Table Section -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <input type="checkbox" id="select-all-gonderilen" class="rounded">
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teklif No</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Şirket</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarih</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutar</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="gonderilen-tbody" class="bg-white divide-y divide-gray-200">
-                                            <!-- Table rows will be populated here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Pagination -->
-                                <div class="px-6 py-3 bg-gray-50 border-t">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-700">
-                                            <span id="gonderilen-info">1-10 arası 25 kayıttan</span>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button id="prev-gonderilen" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Önceki</button>
-                                            <button id="next-gonderilen" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Sonraki</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Taslak Teklifler Tab -->
-                        <div id="taslak-tab" class="teklif-tab-content hidden">
-                            <div class="bg-white rounded-lg shadow-sm border">
-                                <!-- Filter Section -->
-                                <div class="p-6 border-b">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Taslak Teklifler</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                        <input
-                                            type="text"
-                                            id="filter-taslak"
-                                            placeholder="Teklif ara..."
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <select id="sirket-filter-taslak" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                            <option value="">Tüm Şirketler</option>
-                                        </select>
-                                        <input
-                                            type="date"
-                                            id="tarih-filter-taslak"
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <button id="export-taslak" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-                                            <i class="fas fa-download mr-2"></i>
-                                            Dışa Aktar
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Table Section -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <input type="checkbox" id="select-all-taslak" class="rounded">
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teklif No</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Şirket</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tarih</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutar</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="taslak-tbody" class="bg-white divide-y divide-gray-200">
-                                            <!-- Table rows will be populated here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Pagination -->
-                                <div class="px-6 py-3 bg-gray-50 border-t">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-700">
-                                            <span id="taslak-info">1-10 arası 15 kayıttan</span>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button id="prev-taslak" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Önceki</button>
-                                            <button id="next-taslak" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Sonraki</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <span class="font-medium">Ayarlar</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Sistem Ayarları</p>
                     </div>
+                </a>
+            </div>
+        </nav>
 
-                    <!-- Ürün İşlemleri Content -->
-                    <div id="urun-content" class="content-module hidden">
-                        <!-- Ürün Navigation Tabs -->
-                        <div class="bg-white rounded-lg shadow-sm border mb-6">
-                            <div class="border-b">
-                                <nav class="flex space-x-0" aria-label="Ürün İşlemleri">
-                                    <button class="urun-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200 active" data-tab="yeni-urun">
-                                        <i class="fas fa-plus mr-2"></i>
-                                        Yeni Ürün Ekle
-                                    </button>
-                                    <button class="urun-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200" data-tab="urun-listesi">
-                                        <i class="fas fa-list mr-2"></i>
-                                        Ürün Düzenle/Sil
-                                    </button>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Yeni Ürün Ekle Tab -->
-                        <div id="yeni-urun-tab" class="urun-tab-content">
-                            <div class="bg-white rounded-lg shadow-sm border p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-6">Yeni Ürün Ekle</h3>
-                                
-                                <form id="yeni-urun-form" class="space-y-6">
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        <!-- Ürün Adı -->
-                                        <div>
-                                            <label for="urun-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                                Ürün Adı <span class="text-red-500">*</span>
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="urun-adi"
-                                                name="urunAdi"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                placeholder="Ürün adını girin..."
-                                                required
-                                            >
-                                            <div id="urun-adi-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                        </div>
-
-                                        <!-- Döviz Cinsi -->
-                                        <div>
-                                            <label for="doviz-cinsi" class="block text-sm font-medium text-gray-700 mb-2">
-                                                Döviz Cinsi <span class="text-red-500">*</span>
-                                            </label>
-                                            <select
-                                                id="doviz-cinsi"
-                                                name="dovizCinsi"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                required
-                                            >
-                                                <option value="">Döviz cinsi seçin</option>
-                                                <option value="TL">TL (Türk Lirası)</option>
-                                                <option value="USD">USD (Amerikan Doları)</option>
-                                                <option value="EUR">EUR (Euro)</option>
-                                            </select>
-                                            <div id="doviz-cinsi-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Ürün Açıklama -->
-                                    <div>
-                                        <label for="urun-aciklama" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Ürün Açıklama <span class="text-red-500">*</span>
-                                        </label>
-                                        <textarea
-                                            id="urun-aciklama"
-                                            name="urunAciklama"
-                                            rows="4"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                            placeholder="Ürün açıklamasını girin..."
-                                            required
-                                        ></textarea>
-                                        <div id="urun-aciklama-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                    </div>
-
-                                    <!-- Fiyat -->
-                                    <div>
-                                        <label for="urun-fiyat" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Fiyat <span class="text-red-500">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <input
-                                                type="number"
-                                                id="urun-fiyat"
-                                                name="urunFiyat"
-                                                min="0"
-                                                step="0.01"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                placeholder="0.00"
-                                                required
-                                            >
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                                <span id="fiyat-currency" class="text-gray-500 text-sm">TL</span>
-                                            </div>
-                                        </div>
-                                        <div id="urun-fiyat-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                    </div>
-
-                                    <!-- Ürün Görseli -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Ürün Görseli
-                                        </label>
-                                        
-                                        <!-- Upload/URL Toggle -->
-                                        <div class="mb-4">
-                                            <div class="flex space-x-4">
-                                                <label class="flex items-center">
-                                                    <input type="radio" name="gorsel-type" value="upload" class="mr-2" checked>
-                                                    <span class="text-sm text-gray-700">Dosya Yükle</span>
-                                                </label>
-                                                <label class="flex items-center">
-                                                    <input type="radio" name="gorsel-type" value="url" class="mr-2">
-                                                    <span class="text-sm text-gray-700">URL Gir</span>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <!-- File Upload -->
-                                        <div id="upload-section" class="mb-4">
-                                            <div class="flex items-center justify-center w-full">
-                                                <label for="urun-gorsel-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                                                        <p class="mb-2 text-sm text-gray-500">
-                                                            <span class="font-semibold">Tıklayın</span> veya dosyayı sürükleyin
-                                                        </p>
-                                                        <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 5MB)</p>
-                                                    </div>
-                                                    <input id="urun-gorsel-file" type="file" class="hidden" accept="image/png,image/jpg,image/jpeg" />
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <!-- URL Input -->
-                                        <div id="url-section" class="mb-4 hidden">
-                                            <input
-                                                type="url"
-                                                id="urun-gorsel-url"
-                                                name="urunGorselUrl"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                placeholder="https://example.com/image.jpg"
-                                            >
-                                            <button type="button" id="url-test-btn" class="mt-2 px-4 py-2 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700">
-                                                <i class="fas fa-check mr-1"></i>
-                                                URL Test Et
-                                            </button>
-                                        </div>
-
-                                        <!-- Image Preview -->
-                                        <div id="image-preview" class="hidden">
-                                            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                                                <p class="text-sm text-gray-600 mb-2">Görsel Önizleme:</p>
-                                                <img id="preview-image" src="" alt="Ürün görseli önizleme" class="max-w-full h-32 object-contain rounded-md">
-                                                <button type="button" id="remove-image" class="mt-2 text-red-600 hover:text-red-800 text-sm">
-                                                    <i class="fas fa-trash mr-1"></i>
-                                                    Görseli Kaldır
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div id="urun-gorsel-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <div class="flex justify-end pt-4">
-                                        <button
-                                            type="submit"
-                                            id="urun-ekle-btn"
-                                            class="px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-                                            disabled
-                                        >
-                                            <i class="fas fa-plus mr-2"></i>
-                                            Ürün Ekle
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Ürün Düzenle/Sil Tab -->
-                        <div id="urun-listesi-tab" class="urun-tab-content hidden">
-                            <div class="bg-white rounded-lg shadow-sm border">
-                                <!-- Filter Section -->
-                                <div class="p-6 border-b">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Ürün Listesi</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                        <input
-                                            type="text"
-                                            id="filter-urun-adi"
-                                            placeholder="Ürün adı ara..."
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <select id="filter-doviz" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                            <option value="">Tüm Dövizler</option>
-                                            <option value="TL">TL</option>
-                                            <option value="USD">USD</option>
-                                            <option value="EUR">EUR</option>
-                                        </select>
-                                        <input
-                                            type="number"
-                                            id="filter-min-fiyat"
-                                            placeholder="Min fiyat"
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <input
-                                            type="number"
-                                            id="filter-max-fiyat"
-                                            placeholder="Max fiyat"
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <button id="clear-filters" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
-                                            <i class="fas fa-times mr-2"></i>
-                                            Temizle
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Table Section -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <input type="checkbox" id="select-all-urunler" class="rounded">
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Görsel</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün Adı</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Açıklama</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fiyat</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Döviz</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="urunler-tbody" class="bg-white divide-y divide-gray-200">
-                                            <!-- Table rows will be populated here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Pagination -->
-                                <div class="px-6 py-3 bg-gray-50 border-t">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-700">
-                                            <span id="urunler-info">1-10 arası 50 kayıttan</span>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button id="prev-urunler" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Önceki</button>
-                                            <button id="next-urunler" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Sonraki</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Müşteri İşlemleri Content -->
-                    <div id="musteri-content" class="content-module hidden">
-                        <!-- Müşteri Navigation Tabs -->
-                        <div class="bg-white rounded-lg shadow-sm border mb-6">
-                            <div class="border-b">
-                                <nav class="flex space-x-0" aria-label="Müşteri İşlemleri">
-                                    <button class="musteri-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200 active" data-tab="yeni-musteri">
-                                        <i class="fas fa-user-plus mr-2"></i>
-                                        Yeni Müşteri Ekle
-                                    </button>
-                                    <button class="musteri-tab px-6 py-3 text-sm font-medium text-gray-700 border-b-2 border-transparent hover:text-primary-600 hover:border-primary-300 transition-colors duration-200" data-tab="musteri-listesi">
-                                        <i class="fas fa-users mr-2"></i>
-                                        Müşteri Düzenle/Sil
-                                    </button>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <!-- Yeni Müşteri Ekle Tab -->
-                        <div id="yeni-musteri-tab" class="musteri-tab-content">
-                            <div class="bg-white rounded-lg shadow-sm border p-6">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-6">Yeni Müşteri Ekle</h3>
-                                
-                                <form id="yeni-musteri-form" class="space-y-8">
-                                    <!-- Şirket Bilgileri -->
-                                    <div class="bg-gray-50 p-6 rounded-lg">
-                                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
-                                            <i class="fas fa-building mr-2 text-blue-600"></i>
-                                            Şirket Bilgileri
-                                        </h4>
-                                        
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <!-- Şirket Adı -->
-                                            <div class="lg:col-span-2">
-                                                <label for="sirket-adi-musteri" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket Adı <span class="text-red-500">*</span>
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="sirket-adi-musteri"
-                                                    name="sirketAdi"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Şirket adını girin..."
-                                                    required
-                                                >
-                                                <div id="sirket-adi-musteri-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                            </div>
-
-                                            <!-- Şirket Adres -->
-                                            <div class="lg:col-span-2">
-                                                <label for="sirket-adres" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket Adres
-                                                </label>
-                                                <textarea
-                                                    id="sirket-adres"
-                                                    name="sirketAdres"
-                                                    rows="3"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Şirket adresini girin..."
-                                                ></textarea>
-                                            </div>
-
-                                            <!-- Şirket Şehir -->
-                                            <div>
-                                                <label for="sirket-sehir" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket Şehir
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="sirket-sehir"
-                                                    name="sirketSehir"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Şehir adını girin..."
-                                                >
-                                            </div>
-
-                                            <!-- Şirket Ülke -->
-                                            <div>
-                                                <label for="sirket-ulke" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket Ülke
-                                                </label>
-                                                <select
-                                                    id="sirket-ulke"
-                                                    name="sirketUlke"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                >
-                                                    <option value="">Ülke seçin</option>
-                                                    <option value="Türkiye">Türkiye</option>
-                                                    <option value="Almanya">Almanya</option>
-                                                    <option value="İngiltere">İngiltere</option>
-                                                    <option value="Fransa">Fransa</option>
-                                                    <option value="İtalya">İtalya</option>
-                                                    <option value="İspanya">İspanya</option>
-                                                    <option value="ABD">Amerika Birleşik Devletleri</option>
-                                                    <option value="Kanada">Kanada</option>
-                                                    <option value="Japonya">Japonya</option>
-                                                    <option value="Çin">Çin</option>
-                                                    <option value="Diğer">Diğer</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Şirket Telefon -->
-                                            <div>
-                                                <label for="sirket-telefon" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket Telefon
-                                                </label>
-                                                <input
-                                                    type="tel"
-                                                    id="sirket-telefon"
-                                                    name="sirketTelefon"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="+90 (212) 555 0000"
-                                                >
-                                            </div>
-
-                                            <!-- Şirket Mail -->
-                                            <div>
-                                                <label for="sirket-mail" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Şirket E-mail
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    id="sirket-mail"
-                                                    name="sirketMail"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="info@sirket.com"
-                                                >
-                                                <div id="sirket-mail-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Kişi Bilgileri -->
-                                    <div class="bg-blue-50 p-6 rounded-lg">
-                                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
-                                            <i class="fas fa-user mr-2 text-purple-600"></i>
-                                            İletişim Kişisi Bilgileri
-                                        </h4>
-                                        
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <!-- Kişi Adı -->
-                                            <div>
-                                                <label for="kisi-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Kişi Adı
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="kisi-adi"
-                                                    name="kisiAdi"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Ad Soyad"
-                                                >
-                                            </div>
-
-                                            <!-- Kişi Ünvan -->
-                                            <div>
-                                                <label for="kisi-unvan" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Kişi Ünvan
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="kisi-unvan"
-                                                    name="kisiUnvan"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="Satış Müdürü, Genel Müdür, vb."
-                                                >
-                                            </div>
-
-                                            <!-- Kişi Telefon Dahili -->
-                                            <div>
-                                                <label for="kisi-telefon-dahili" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Kişi Telefon (Dahili)
-                                                </label>
-                                                <input
-                                                    type="tel"
-                                                    id="kisi-telefon-dahili"
-                                                    name="kisiTelefonDahili"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="+90 (212) 555 0000 / 123"
-                                                >
-                                            </div>
-
-                                            <!-- Kişi Telefon Mobil -->
-                                            <div>
-                                                <label for="kisi-telefon-mobil" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Kişi Telefon (Mobil)
-                                                </label>
-                                                <input
-                                                    type="tel"
-                                                    id="kisi-telefon-mobil"
-                                                    name="kisiTelefonMobil"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="+90 (555) 123 4567"
-                                                >
-                                            </div>
-
-                                            <!-- Kişi Mail -->
-                                            <div class="lg:col-span-2">
-                                                <label for="kisi-mail" class="block text-sm font-medium text-gray-700 mb-2">
-                                                    Kişi E-mail
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    id="kisi-mail"
-                                                    name="kisiMail"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                    placeholder="kisi@sirket.com"
-                                                >
-                                                <div id="kisi-mail-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Submit Button -->
-                                    <div class="flex justify-end pt-4">
-                                        <button
-                                            type="submit"
-                                            id="musteri-ekle-btn"
-                                            class="px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-                                            disabled
-                                        >
-                                            <i class="fas fa-user-plus mr-2"></i>
-                                            Müşteri Ekle
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Müşteri Düzenle/Sil Tab -->
-                        <div id="musteri-listesi-tab" class="musteri-tab-content hidden">
-                            <div class="bg-white rounded-lg shadow-sm border">
-                                <!-- Filter Section -->
-                                <div class="p-6 border-b">
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Müşteri Listesi</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <input
-                                            type="text"
-                                            id="filter-sirket-adi"
-                                            placeholder="Şirket adı ara..."
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <input
-                                            type="text"
-                                            id="filter-kisi-adi"
-                                            placeholder="Kişi adı ara..."
-                                            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                        >
-                                        <select id="filter-ulke" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                            <option value="">Tüm Ülkeler</option>
-                                            <option value="Türkiye">Türkiye</option>
-                                            <option value="Almanya">Almanya</option>
-                                            <option value="İngiltere">İngiltere</option>
-                                            <option value="Fransa">Fransa</option>
-                                            <option value="ABD">ABD</option>
-                                            <option value="Diğer">Diğer</option>
-                                        </select>
-                                        <button id="clear-musteri-filters" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
-                                            <i class="fas fa-times mr-2"></i>
-                                            Temizle
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Table Section -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    <input type="checkbox" id="select-all-musteriler" class="rounded">
-                                                </th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Şirket Adı</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İletişim Kişisi</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ünvan</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Şehir/Ülke</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
-                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="musteriler-tbody" class="bg-white divide-y divide-gray-200">
-                                            <!-- Table rows will be populated here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- Pagination -->
-                                <div class="px-6 py-3 bg-gray-50 border-t">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-700">
-                                            <span id="musteriler-info">1-10 arası 25 kayıttan</span>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button id="prev-musteriler" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Önceki</button>
-                                            <button id="next-musteriler" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">Sonraki</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- User Profile -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
                 </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- Müşteri Düzenleme Modal -->
-    <div id="musteri-duzenle-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b">
-                    <h3 class="text-lg font-semibold text-gray-800">Müşteri Düzenle</h3>
-                    <button id="close-musteri-modal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 dark:text-white truncate">Admin User</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">admin@labomak.com</p>
                 </div>
-                <div class="p-6">
-                    <form id="musteri-duzenle-form" class="space-y-6">
-                        <input type="hidden" id="edit-musteri-id" name="musteriId">
-                        
-                        <!-- Şirket Bilgileri -->
-                        <div class="bg-gray-50 p-6 rounded-lg">
-                            <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-building mr-2 text-blue-600"></i>
-                                Şirket Bilgileri
-                            </h4>
-                            
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <!-- Şirket Adı -->
-                                <div class="lg:col-span-2">
-                                    <label for="edit-sirket-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket Adı <span class="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="edit-sirket-adi"
-                                        name="sirketAdi"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                        required
-                                    >
-                                </div>
-
-                                <!-- Şirket Adres -->
-                                <div class="lg:col-span-2">
-                                    <label for="edit-sirket-adres" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket Adres
-                                    </label>
-                                    <textarea
-                                        id="edit-sirket-adres"
-                                        name="sirketAdres"
-                                        rows="3"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    ></textarea>
-                                </div>
-
-                                <!-- Şirket Şehir -->
-                                <div>
-                                    <label for="edit-sirket-sehir" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket Şehir
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="edit-sirket-sehir"
-                                        name="sirketSehir"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Şirket Ülke -->
-                                <div>
-                                    <label for="edit-sirket-ulke" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket Ülke
-                                    </label>
-                                    <select
-                                        id="edit-sirket-ulke"
-                                        name="sirketUlke"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                        <option value="">Ülke seçin</option>
-                                        <option value="Türkiye">Türkiye</option>
-                                        <option value="Almanya">Almanya</option>
-                                        <option value="İngiltere">İngiltere</option>
-                                        <option value="Fransa">Fransa</option>
-                                        <option value="İtalya">İtalya</option>
-                                        <option value="İspanya">İspanya</option>
-                                        <option value="ABD">Amerika Birleşik Devletleri</option>
-                                        <option value="Kanada">Kanada</option>
-                                        <option value="Japonya">Japonya</option>
-                                        <option value="Çin">Çin</option>
-                                        <option value="Diğer">Diğer</option>
-                                    </select>
-                                </div>
-
-                                <!-- Şirket Telefon -->
-                                <div>
-                                    <label for="edit-sirket-telefon" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket Telefon
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        id="edit-sirket-telefon"
-                                        name="sirketTelefon"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Şirket Mail -->
-                                <div>
-                                    <label for="edit-sirket-mail" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Şirket E-mail
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="edit-sirket-mail"
-                                        name="sirketMail"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Kişi Bilgileri -->
-                        <div class="bg-blue-50 p-6 rounded-lg">
-                            <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-user mr-2 text-purple-600"></i>
-                                İletişim Kişisi Bilgileri
-                            </h4>
-                            
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <!-- Kişi Adı -->
-                                <div>
-                                    <label for="edit-kisi-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Kişi Adı
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="edit-kisi-adi"
-                                        name="kisiAdi"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Kişi Ünvan -->
-                                <div>
-                                    <label for="edit-kisi-unvan" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Kişi Ünvan
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="edit-kisi-unvan"
-                                        name="kisiUnvan"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Kişi Telefon Dahili -->
-                                <div>
-                                    <label for="edit-kisi-telefon-dahili" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Kişi Telefon (Dahili)
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        id="edit-kisi-telefon-dahili"
-                                        name="kisiTelefonDahili"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Kişi Telefon Mobil -->
-                                <div>
-                                    <label for="edit-kisi-telefon-mobil" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Kişi Telefon (Mobil)
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        id="edit-kisi-telefon-mobil"
-                                        name="kisiTelefonMobil"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-
-                                <!-- Kişi Mail -->
-                                <div class="lg:col-span-2">
-                                    <label for="edit-kisi-mail" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Kişi E-mail
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="edit-kisi-mail"
-                                        name="kisiMail"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="flex justify-end space-x-3 p-6 border-t">
-                    <button id="cancel-musteri-edit" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                        İptal
-                    </button>
-                    <button id="save-musteri-edit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
-                        <i class="fas fa-save mr-2"></i>
-                        Kaydet
-                    </button>
-                </div>
+                <button class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Ürün Düzenleme Modal -->
-    <div id="urun-duzenle-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b">
-                    <h3 class="text-lg font-semibold text-gray-800">Ürün Düzenle</h3>
-                    <button id="close-urun-modal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
+    <!-- Main Content -->
+    <div id="main-content" class="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <!-- Top Bar (Desktop) -->
+        <div class="hidden lg:flex items-center justify-between p-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div>
+                <h2 id="page-title" class="text-2xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
+                <p id="page-subtitle" class="text-sm text-gray-600 dark:text-gray-400 mt-1">Genel sistem durumu ve istatistikler</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
                     </button>
                 </div>
-                <div class="p-6">
-                    <form id="urun-duzenle-form" class="space-y-6">
-                        <input type="hidden" id="edit-urun-id" name="urunId">
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <!-- Ürün Adı -->
+                <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="p-4 lg:p-6">
+            <!-- Dashboard Module -->
+            <div id="dashboard-module" class="content-module">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Stats Cards -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <label for="edit-urun-adi" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Ürün Adı <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="edit-urun-adi"
-                                    name="urunAdi"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    required
-                                >
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Müşteri</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1" id="total-customers">-</p>
                             </div>
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-green-600 dark:text-green-400 font-medium">+12%</span>
+                            <span class="text-gray-600 dark:text-gray-400 ml-2">Bu ay</span>
+                        </div>
+                    </div>
 
-                            <!-- Döviz Cinsi -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <label for="edit-doviz-cinsi" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Döviz Cinsi <span class="text-red-500">*</span>
-                                </label>
-                                <select
-                                    id="edit-doviz-cinsi"
-                                    name="dovizCinsi"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                    required
-                                >
-                                    <option value="TL">TL (Türk Lirası)</option>
-                                    <option value="USD">USD (Amerikan Doları)</option>
-                                    <option value="EUR">EUR (Euro)</option>
-                                </select>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Ürün</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1" id="total-products">-</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-box text-green-600 dark:text-green-400"></i>
                             </div>
                         </div>
-
-                        <!-- Ürün Açıklama -->
-                        <div>
-                            <label for="edit-urun-aciklama" class="block text-sm font-medium text-gray-700 mb-2">
-                                Ürün Açıklama <span class="text-red-500">*</span>
-                            </label>
-                            <textarea
-                                id="edit-urun-aciklama"
-                                name="urunAciklama"
-                                rows="4"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                required
-                            ></textarea>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-green-600 dark:text-green-400 font-medium">+8%</span>
+                            <span class="text-gray-600 dark:text-gray-400 ml-2">Bu ay</span>
                         </div>
+                    </div>
 
-                        <!-- Fiyat -->
-                        <div>
-                            <label for="edit-urun-fiyat" class="block text-sm font-medium text-gray-700 mb-2">
-                                Fiyat <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="edit-urun-fiyat"
-                                name="urunFiyat"
-                                min="0"
-                                step="0.01"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                required
-                            >
-                        </div>
-
-                        <!-- Görsel URL -->
-                        <div>
-                            <label for="edit-urun-gorsel-url" class="block text-sm font-medium text-gray-700 mb-2">
-                                Görsel URL
-                            </label>
-                            <input
-                                type="url"
-                                id="edit-urun-gorsel-url"
-                                name="gorselUrl"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                placeholder="https://example.com/image.jpg"
-                            >
-                        </div>
-
-                        <!-- Mevcut Görsel -->
-                        <div id="edit-current-image" class="hidden">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mevcut Görsel</label>
-                            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
-                                <img id="edit-current-image-preview" src="" alt="Mevcut ürün görseli" class="max-w-full h-32 object-contain rounded-md">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Toplam Teklif</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1" id="total-offers">-</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-invoice text-purple-600 dark:text-purple-400"></i>
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="flex justify-end space-x-3 p-6 border-t">
-                    <button id="cancel-edit" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                        İptal
-                    </button>
-                    <button id="save-edit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
-                        <i class="fas fa-save mr-2"></i>
-                        Kaydet
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-green-600 dark:text-green-400 font-medium">+15%</span>
+                            <span class="text-gray-600 dark:text-gray-400 ml-2">Bu ay</span>
+                        </div>
+                    </div>
 
-    <!-- Teklif Önizleme Modal -->
-    <div id="teklif-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b">
-                    <h3 class="text-lg font-semibold text-gray-800">Teklif Önizleme</h3>
-                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Aktif Kullanıcı</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1" id="active-users">-</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-check text-orange-600 dark:text-orange-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-green-600 dark:text-green-400 font-medium">+5%</span>
+                            <span class="text-gray-600 dark:text-gray-400 ml-2">Bu ay</span>
+                        </div>
+                    </div>
                 </div>
-                <div id="modal-content" class="p-6">
-                    <!-- Modal content will be loaded here -->
-                </div>
-                <div class="flex justify-end space-x-3 p-6 border-t">
-                    <button id="print-teklif" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">
-                        <i class="fas fa-print mr-2"></i>
-                        Yazdır
-                    </button>
-                    <button id="download-teklif" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                        <i class="fas fa-download mr-2"></i>
-                        İndir
-                    </button>
+
+                <!-- Recent Activity -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Son Aktiviteler</h3>
+                    <div class="space-y-4" id="recent-activities">
+                        <div class="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                <i class="fas fa-plus text-blue-600 dark:text-blue-400 text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white">Yeni müşteri eklendi</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">2 dakika önce</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-invoice text-green-600 dark:text-green-400 text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white">Teklif gönderildi</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">5 dakika önce</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                                <i class="fas fa-box text-purple-600 dark:text-purple-400 text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-800 dark:text-white">Yeni ürün eklendi</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">10 dakika önce</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Other modules will be loaded here by app.js -->
+            <div id="teklifler-module" class="content-module hidden"></div>
+            <div id="urunler-module" class="content-module hidden"></div>
+            <div id="musteriler-module" class="content-module hidden"></div>
         </div>
     </div>
 
     <!-- Mobile Bottom Navigation -->
-    <div id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 md:hidden">
-        <div class="flex justify-around items-center py-2">
-            <button class="mobile-nav-item flex flex-col items-center p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-module="dashboard">
-                <i class="fas fa-home text-xl mb-1"></i>
-                <span class="text-xs">Dashboard</span>
+    <div id="mobile-bottom-nav" class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-30">
+        <div class="grid grid-cols-4 gap-1">
+            <button class="mobile-nav-item flex flex-col items-center py-3 px-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-module="dashboard">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <span class="text-xs font-medium">Dashboard</span>
             </button>
-            <button class="mobile-nav-item flex flex-col items-center p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-module="teklif">
-                <i class="fas fa-file-invoice text-xl mb-1"></i>
-                <span class="text-xs">Teklif</span>
+            <button class="mobile-nav-item flex flex-col items-center py-3 px-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-module="teklifler">
+                <i class="fas fa-file-invoice text-lg mb-1"></i>
+                <span class="text-xs font-medium">Teklifler</span>
             </button>
-            <button class="mobile-nav-item flex flex-col items-center p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-module="urun">
-                <i class="fas fa-box text-xl mb-1"></i>
-                <span class="text-xs">Ürün</span>
+            <button class="mobile-nav-item flex flex-col items-center py-3 px-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-module="urunler">
+                <i class="fas fa-box text-lg mb-1"></i>
+                <span class="text-xs font-medium">Ürünler</span>
             </button>
-            <button class="mobile-nav-item flex flex-col items-center p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-module="musteri">
-                <i class="fas fa-users text-xl mb-1"></i>
-                <span class="text-xs">Müşteri</span>
-            </button>
-            <button class="mobile-nav-item flex flex-col items-center p-2 text-gray-400 hover:text-blue-600 transition-colors" data-module="settings">
-                <i class="fas fa-cog text-xl mb-1"></i>
-                <span class="text-xs">Ayarlar</span>
+            <button class="mobile-nav-item flex flex-col items-center py-3 px-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors" data-module="musteriler">
+                <i class="fas fa-users text-lg mb-1"></i>
+                <span class="text-xs font-medium">Müşteriler</span>
             </button>
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <span class="text-gray-800 dark:text-white font-medium">Yükleniyor...</span>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Scripts -->
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
+    <script>
+        // Theme Management
+        class ThemeManager {
+            constructor() {
+                this.init();
+                this.bindEvents();
+            }
+
+            init() {
+                // Check for saved theme or default to system preference
+                const savedTheme = localStorage.getItem('theme');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                
+                if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                    this.enableDarkMode();
+                } else {
+                    this.enableLightMode();
+                }
+            }
+
+            bindEvents() {
+                // Desktop theme toggle
+                document.getElementById('theme-toggle-desktop')?.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Mobile theme toggle
+                document.getElementById('theme-toggle')?.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (!localStorage.getItem('theme')) {
+                        if (e.matches) {
+                            this.enableDarkMode();
+                        } else {
+                            this.enableLightMode();
+                        }
+                    }
+                });
+            }
+
+            toggleTheme() {
+                if (document.documentElement.classList.contains('dark')) {
+                    this.enableLightMode();
+                } else {
+                    this.enableDarkMode();
+                }
+            }
+
+            enableDarkMode() {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+
+            enableLightMode() {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Mobile Navigation Management
+        class MobileNavigation {
+            constructor() {
+                this.sidebar = document.getElementById('sidebar');
+                this.overlay = document.getElementById('mobile-overlay');
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                // Mobile menu toggle
+                document.getElementById('mobile-menu-toggle')?.addEventListener('click', () => {
+                    this.openSidebar();
+                });
+
+                // Mobile menu close
+                document.getElementById('mobile-menu-close')?.addEventListener('click', () => {
+                    this.closeSidebar();
+                });
+
+                // Overlay click
+                this.overlay?.addEventListener('click', () => {
+                    this.closeSidebar();
+                });
+
+                // Bottom navigation
+                document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const module = e.currentTarget.dataset.module;
+                        this.setActiveBottomNav(e.currentTarget);
+                        // Trigger module change
+                        if (window.app && window.app.showModule) {
+                            window.app.showModule(module);
+                        }
+                    });
+                });
+
+                // Close sidebar when clicking menu items on mobile
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (window.innerWidth < 1024) {
+                            this.closeSidebar();
+                        }
+                    });
+                });
+            }
+
+            openSidebar() {
+                this.sidebar.classList.remove('-translate-x-full');
+                this.overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeSidebar() {
+                this.sidebar.classList.add('-translate-x-full');
+                this.overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            setActiveBottomNav(activeItem) {
+                document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                    item.classList.remove('text-primary-600', 'dark:text-primary-400');
+                    item.classList.add('text-gray-600', 'dark:text-gray-400');
+                });
+                
+                activeItem.classList.remove('text-gray-600', 'dark:text-gray-400');
+                activeItem.classList.add('text-primary-600', 'dark:text-primary-400');
+            }
+        }
+
+        // Notification System
+        class NotificationSystem {
+            constructor() {
+                this.container = document.getElementById('notification-container');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type} px-4 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 translate-x-full`;
+                
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    info: 'bg-blue-500'
+                };
+
+                notification.className += ` ${colors[type] || colors.info}`;
+                notification.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>${message}</span>
+                        <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                this.container.appendChild(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+
+                // Auto remove
+                if (duration > 0) {
+                    setTimeout(() => {
+                        notification.classList.add('translate-x-full');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, duration);
+                }
+            }
+        }
+
+        // Initialize systems
+        document.addEventListener('DOMContentLoaded', () => {
+            window.themeManager = new ThemeManager();
+            window.mobileNav = new MobileNavigation();
+            window.notifications = new NotificationSystem();
+        });
+    </script>
 </body>
 </html>
